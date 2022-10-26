@@ -2,6 +2,8 @@
 
 linking cspace and resourcespace
 
+`pip3 install "fastapi[all]"`
+
 ## FLOW:
 
 1) button is pushed on rs record
