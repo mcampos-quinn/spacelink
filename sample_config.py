@@ -4,9 +4,11 @@ CONFIG SETTINGS
 import urllib
 
 CSPACE_INSTANCE = {
-	"art_collection":{
-		"url":"https://bla",
-		"resource type":""	# this is the resourcetype in RS that this instance applies to, for example artworks = 13
+	"art_collection": {
+		"resource type":"13,
+		"query results per page":10,
+		"cspace max query results":12,
+		"cspace_url":"https://blabla/cspace-services/"
 		}
 	}
 CSPACE_USER = ""

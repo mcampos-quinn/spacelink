@@ -16,7 +16,7 @@ class RSpaceRequest:
 		self.rs_api_function = rs_api_function
 		self.parameters = self.format_params(parameters)
 		self.rs_user = config.RS_USER
-		print(self.rs_user)
+		# print(self.rs_user)
 		self.rs_userkey = config.RS_USERKEY
 		self.rs_url = config.RS_URL
 		self.query_url = None
@@ -31,10 +31,10 @@ class RSpaceRequest:
 			self.rs_api_function,
 			self.parameters
 			)
-		print(query)
+		# print(query)
 		sign = hashlib.sha256(self.rs_userkey.encode()+query.encode())
 		sign = sign.hexdigest()
-		print(sign)
+		# print(sign)
 		self.query_url = "{}/?{}&sign={}".format(
 			self.rs_url,
 			query,
@@ -45,6 +45,7 @@ class RSpaceRequest:
 		if not self.query_url:
 			sys.exit(1)
 		response = requests.post(self.query_url)
+		response = response.json()
 
 		return response
 
@@ -66,5 +67,5 @@ def do_search(search_string=None, resource_type=None):
 	search.make_query()
 	response = search.post_query()
 
-	print(response.text)
+	# print(response.text)
 	return response

@@ -27,4 +27,13 @@ rsids = rs_utils.do_search(
 	resource_type=resource_type
 	)
 
-print(rsids)
+rsids = rsids
+# print(type(rsids))
+# print(len(rsids))
+
+for resource in rsids:
+	# print(resource)
+	# print(type(resource))
+	print(resource['field8'])
+
+# print(len(list(rsids)))
