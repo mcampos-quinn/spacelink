@@ -9,6 +9,7 @@ This will be the initial nightly sync between cspace and resourcespace
 from datetime import datetime
 from pathlib import Path
 import sys
+import urllib
 
 import config
 import cs_utils
@@ -30,22 +31,32 @@ rsids = rs_requester.do_search(
 	search_string="!empty101",
 	resource_type=resource_type
 	)
+# now go back and add the url for the relevant preview size (set in config)
+preview_query_string = rs_utils.make_rsid_query_list(rsids)
+previews = rs_requester.search_get_previews(
+	search_string=preview_query_string,
+	resource_type=resource_type
+	)
+
+url_key = 'url_'+config.DERIVATIVE_SIZE
+for x in previews:
+	if url_key in x:
+		for y in rsids:
+			if x['ref'] == y['ref']:
+				y[url_key] = x[url_key]
 
 counter = 0
 for resource in rsids:
 	counter += 1
+	# print(resource)
 	item = rs_utils.RSpaceObject(rsid=resource['ref'])
 	if counter < 5:
-		# print(resource)
-		# print(type(resource))
 		print(resource['field8'])
 		# object_number will be from a parsed filename, or from an accession number field directly
 		object_number = "2021.16.1"
 		response = cspace_requester.run_query(
 			cspace_service='collectionobjects',
-			parameters="?as=collectionobjects_common:objectNumber='{}'".format(
-				object_number
-				)
+			parameters=f"?as=collectionobjects_common:objectNumber='{object_number}'"
 			)
 		# print(response)
 		csid,uri = cspace_requester.parse_paged_response(response)
@@ -58,12 +69,10 @@ for resource in rsids:
 						resource_id=item.rsid,
 						field_id=k,
 						value=v)
-
-
-	# search cspace based on parsed filename
-
-	# put required fields into dict/json
-
-	# post that back to rs
-
-# print(len(list(rsids)))
+					# blob_url = urllib.parse.quote_plus(f'{}')
+					response = cspace_requester.run_query(
+						cspace_service='media',
+						parameters=f'?blobUri={resource[url_key]}',
+						verb='post'
+					)
+					# print(response)

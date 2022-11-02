@@ -38,11 +38,24 @@ class RSpaceRequest:
 		params = "&".join(["{}={}".format(k,v) for k,v in parameters.items()])
 		return params
 
+	def search_get_previews(self,search_string=None,resource_type=None):
+		self.rs_api_function = "search_get_previews"
+		self.parameters = self.format_params({
+			"search":search_string,
+			"restypes":resource_type,
+			"getsizes":config.DERIVATIVE_SIZE
+			})
+		self.make_query()
+		response = self.post_query()
+
+		return response
+
 	def do_search(self, search_string=None, resource_type=None):
 		self.rs_api_function = "do_search"
 		self.parameters = self.format_params({
-			"$search":search_string,
-			"$restypes":resource_type
+			"search":search_string,
+			"restypes":resource_type,
+			"getsizes":config.DERIVATIVE_SIZE
 			})
 		self.make_query()
 		response = self.post_query()
@@ -59,7 +72,7 @@ class RSpaceRequest:
 		})
 		self.make_query()
 		response = self.post_query()
-		print(response)
+		# print(response)
 
 	def make_query(self):
 		query = "user={}&function={}&{}".format(
@@ -89,6 +102,13 @@ class RSpaceRequest:
 
 		return response
 
+def make_rsid_query_list(rsids=[]):
+	rsid_list = []
+	if not rsids == []:
+		for rsid in rsids:
+			rsid_list.append(rsid['ref'])
+	query_list = f"!list{':'.join([x for x in rsid_list])}"
+	return query_list
 
 def get_resource_data(rs_api_function, parameters):
 	# or like this?

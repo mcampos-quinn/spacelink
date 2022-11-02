@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+import urllib
 from urllib.parse import urljoin
 
 from lxml import etree
@@ -22,14 +23,24 @@ class CSpaceRequest:
 		# 	).encode()
 		# )
 
-	def run_query(self,cspace_service=None,parameters=None):
+	def run_query(self,cspace_service=None,parameters=None,verb="get",headers=None):
 		url = f"{self.cspace_services_url}/{cspace_service}{parameters}"
 		print(url)
-		response = requests.get(url,auth=(
-			config.CSPACE_USER,
-			config.CSPACE_PASSWORD
+		if verb == "get":
+			response = requests.get(url,auth=(
+				config.CSPACE_USER,
+				config.CSPACE_PASSWORD
+				)
 			)
-		)
+		elif verb == 'post':
+			headers = {"Content-Type":"application/xml"}
+			response = requests.post(url,auth=(
+				config.CSPACE_USER,
+				config.CSPACE_PASSWORD
+				),
+				headers=headers
+			)
+			print(response.text)
 		return response.text
 
 	def parse_paged_response(self,response):
