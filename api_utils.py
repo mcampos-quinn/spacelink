@@ -1,3 +1,6 @@
+# this was taken from wikicinedata and is maybe not applicable/too complex
+# this whole file us currently unusued
+
 import concurrent.futures
 import queue
 import requests

@@ -1,10 +1,23 @@
 # standard library imports
 import hashlib
+import urllib
 # third party imports
 import requests
 # local imports
 import config
 
+class RSpaceObject:
+	"""defines an object (resource) in resourcespace"""
+	def __init__(self,
+		rsid=None,
+		metadata={},
+		local_filepath=None,
+		alternative_files=[(None,None)]):
+		self.rsid = rsid
+		self.metadata = metadata
+		self.local_filepath = local_filepath
+		# a list of tuples (rsid,local_filepath) for alt files
+		self.alternative_files = alternative_files
 
 
 class RSpaceRequest:
@@ -14,7 +27,7 @@ class RSpaceRequest:
 		parameters=None):
 
 		self.rs_api_function = rs_api_function
-		self.parameters = self.format_params(parameters)
+		self.parameters = parameters
 		self.rs_user = config.RS_USER
 		# print(self.rs_user)
 		self.rs_userkey = config.RS_USERKEY
@@ -24,6 +37,29 @@ class RSpaceRequest:
 	def format_params(self,parameters):
 		params = "&".join(["{}={}".format(k,v) for k,v in parameters.items()])
 		return params
+
+	def do_search(self, search_string=None, resource_type=None):
+		self.rs_api_function = "do_search"
+		self.parameters = self.format_params({
+			"$search":search_string,
+			"$restypes":resource_type
+			})
+		self.make_query()
+		response = self.post_query()
+
+		# print(response.text)
+		return response
+
+	def update_field(self,resource_id=None,field_id=None,value=None):
+		self.rs_api_function = "update_field"
+		self.parameters = self.format_params({
+			"resource":resource_id,
+			"field":field_id,
+			"value":urllib.parse.quote_plus(value)
+		})
+		self.make_query()
+		response = self.post_query()
+		print(response)
 
 	def make_query(self):
 		query = "user={}&function={}&{}".format(
@@ -40,12 +76,16 @@ class RSpaceRequest:
 			query,
 			sign
 			)
+		print(self.query_url)
 
 	def post_query(self):
 		if not self.query_url:
-			sys.exit(1)
+			sys.exit(1) # lol this needs to be less extreme
 		response = requests.post(self.query_url)
-		response = response.json()
+		try:
+			response = response.json()
+		except:
+			pass
 
 		return response
 
@@ -54,18 +94,3 @@ def get_resource_data(rs_api_function, parameters):
 	# or like this?
 	# kwargs = parameters for api call
 	pass
-
-def do_search(search_string=None, resource_type=None):
-	search = RSpaceRequest(
-		rs_api_function="do_search",
-		parameters = {
-				"$search":search_string,
-				"$restypes":resource_type
-			}
-		)
-
-	search.make_query()
-	response = search.post_query()
-
-	# print(response.text)
-	return response
