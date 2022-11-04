@@ -89,7 +89,7 @@ class RSpaceRequest:
 			query,
 			sign
 			)
-		print(self.query_url)
+		# print(self.query_url)
 
 	def post_query(self):
 		if not self.query_url:

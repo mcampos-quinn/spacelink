@@ -23,9 +23,9 @@ class CSpaceRequest:
 		# 	).encode()
 		# )
 
-	def run_query(self,cspace_service=None,parameters=None,verb="get",headers=None):
+	def run_query(self,cspace_service=None,parameters=None,verb="get",headers=None,payload=None):
 		url = f"{self.cspace_services_url}/{cspace_service}{parameters}"
-		print(url)
+		# print(url)
 		if verb == "get":
 			response = requests.get(url,auth=(
 				config.CSPACE_USER,
@@ -38,10 +38,11 @@ class CSpaceRequest:
 				config.CSPACE_USER,
 				config.CSPACE_PASSWORD
 				),
-				headers=headers
+				headers=headers,
+				data=payload
 			)
-			print(response.text)
-		return response.text
+			# print(response.text)
+		return response
 
 	def parse_paged_response(self,response):
 		# get the csid for hopefully the one item in a search by acc no
@@ -61,7 +62,7 @@ class CSpaceRequest:
 		response = self.run_query(
 			cspace_service='collectionobjects',
 			parameters="/"+csid)
-		full_item_xml = etree.XML(response.encode())
+		full_item_xml = etree.XML(response.text.encode())
 		# print(full_item_xml)
 		fields_to_extract = self.instance_config['fields_to_extract']
 		temp={}
@@ -70,3 +71,10 @@ class CSpaceRequest:
 			temp[k] = full_item_xml.find(f".//{v}").text
 		# print(temp)
 		return temp
+
+media_payload = """<?xml version="1.0" encoding="UTF-8"?>
+<document name="media">
+<ns2:media_common xmlns:ns2="http://collectionspace.org/services/media" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</ns2:media_common>
+</document>
+"""

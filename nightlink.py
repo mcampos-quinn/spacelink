@@ -8,6 +8,7 @@ This will be the initial nightly sync between cspace and resourcespace
 """
 from datetime import datetime
 from pathlib import Path
+import re
 import sys
 import urllib
 
@@ -43,7 +44,7 @@ for x in previews:
 	if url_key in x:
 		for y in rsids:
 			if x['ref'] == y['ref']:
-				y[url_key] = x[url_key]
+				y[url_key] = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
 
 counter = 0
 for resource in rsids:
@@ -59,7 +60,7 @@ for resource in rsids:
 			parameters=f"?as=collectionobjects_common:objectNumber='{object_number}'"
 			)
 		# print(response)
-		csid,uri = cspace_requester.parse_paged_response(response)
+		csid,uri = cspace_requester.parse_paged_response(response.text)
 		# print(csid)
 		if csid:
 			item.metadata = cspace_requester.get_item_data(csid)
@@ -73,6 +74,10 @@ for resource in rsids:
 					response = cspace_requester.run_query(
 						cspace_service='media',
 						parameters=f'?blobUri={resource[url_key]}',
-						verb='post'
+						verb='post',
+						payload = cs_utils.media_payload
 					)
-					# print(response)
+					if response.ok:
+						media_uri = response.headers['Location']
+						print(media_uri)
+						# do stuff
