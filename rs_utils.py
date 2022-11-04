@@ -73,6 +73,7 @@ class RSpaceRequest:
 		self.make_query()
 		response = self.post_query()
 		# print(response)
+		return response
 
 	def make_query(self):
 		query = "user={}&function={}&{}".format(

@@ -23,9 +23,9 @@ class CSpaceRequest:
 		# 	).encode()
 		# )
 
-	def run_query(self,cspace_service=None,parameters=None,verb="get",headers=None,payload=None):
+	def run_query(self,cspace_service=None,parameters="",verb="get",headers=None,payload=None):
 		url = f"{self.cspace_services_url}/{cspace_service}{parameters}"
-		# print(url)
+		print(url)
 		if verb == "get":
 			response = requests.get(url,auth=(
 				config.CSPACE_USER,
@@ -76,5 +76,17 @@ media_payload = """<?xml version="1.0" encoding="UTF-8"?>
 <document name="media">
 <ns2:media_common xmlns:ns2="http://collectionspace.org/services/media" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 </ns2:media_common>
+</document>
+"""
+
+relation_payload="""<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<document>
+	<ns2:relations_common xmlns:ns2="http://collectionspace.org/services/relation">
+	  <subjectCsid>{}</subjectCsid>
+	  <subjectDocumentType>media</subjectDocumentType>
+	  <relationshipType>affects</relationshipType>
+	  <objectCsid>{}</objectCsid>
+	  <objectDocumentType>collectionobjects</objectDocumentType>
+	</ns2:relations_common>
 </document>
 """

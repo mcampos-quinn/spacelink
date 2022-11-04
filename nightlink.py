@@ -77,7 +77,25 @@ for resource in rsids:
 						verb='post',
 						payload = cs_utils.media_payload
 					)
+					# print(response.ok)
 					if response.ok:
 						media_uri = response.headers['Location']
-						print(media_uri)
-						# do stuff
+						# print(media_uri)
+						media_csid = re.match('.+\/([a-fA-F0-9-]+)',media_uri).group(1)
+						# print(media_csid)
+						payload = cs_utils.relation_payload.format(media_csid,csid)
+						# print(payload)
+						response = cspace_requester.run_query(
+							cspace_service='relations',
+							verb='post',
+							payload=payload
+						)
+						# print(response.status_code)
+						# print(response.text)
+						if response.ok:
+							response = rs_requester.update_field(
+								resource_id=item.rsid,
+								field_id='101',
+								value='true'
+							)
+							print(response)
