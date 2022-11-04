@@ -29,7 +29,6 @@ class RSpaceRequest:
 		self.rs_api_function = rs_api_function
 		self.parameters = parameters
 		self.rs_user = config.RS_USER
-		# print(self.rs_user)
 		self.rs_userkey = config.RS_USERKEY
 		self.rs_url = config.RS_URL
 		self.query_url = None
@@ -60,7 +59,6 @@ class RSpaceRequest:
 		self.make_query()
 		response = self.post_query()
 
-		# print(response.text)
 		return response
 
 	def update_field(self,resource_id=None,field_id=None,value=None):
@@ -72,7 +70,7 @@ class RSpaceRequest:
 		})
 		self.make_query()
 		response = self.post_query()
-		# print(response)
+
 		return response
 
 	def make_query(self):
@@ -81,10 +79,8 @@ class RSpaceRequest:
 			self.rs_api_function,
 			self.parameters
 			)
-		# print(query)
 		sign = hashlib.sha256(self.rs_userkey.encode()+query.encode())
 		sign = sign.hexdigest()
-		# print(sign)
 		self.query_url = "{}/?{}&sign={}".format(
 			self.rs_url,
 			query,

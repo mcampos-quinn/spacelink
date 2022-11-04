@@ -1,11 +1,12 @@
+# standard library imports
 import base64
 from pathlib import Path
 import urllib
 from urllib.parse import urljoin
-
+# third party imports
 from lxml import etree
 import requests
-
+# local imports
 import config
 
 class CSpaceRequest:
@@ -17,11 +18,6 @@ class CSpaceRequest:
 		self.cspace_instance = cspace_instance
 		self.instance_config = config.CSPACE_INSTANCE[cspace_instance]
 		self.cspace_services_url = self.instance_config['cspace_services_url']
-		# self.auth = base64.b64encode("{}:{}".format(
-		# 	config.CSPACE_INSTANCE[cspace_instance]['CSPACE_USER'],
-		# 	config.CSPACE_INSTANCE[cspace_instance]['CSPACE_PASSWORD']
-		# 	).encode()
-		# )
 
 	def run_query(self,cspace_service=None,parameters="",verb="get",headers=None,payload=None):
 		url = f"{self.cspace_services_url}/{cspace_service}{parameters}"
