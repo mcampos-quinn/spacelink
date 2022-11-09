@@ -51,8 +51,14 @@ class CSpaceRequest:
 		if int(number_of_results) == 1:
 			csid = tree.find(".//csid").text
 			uri = tree.find(".//uri").text
+			url = self.make_url(uri)
 			# print(csid)
-		return csid,uri
+		return csid,url
+
+	def make_url(self,uri):
+		url = f"{self.cspace_services_url.replace('/cspace-services','')}{uri}"
+
+		return url
 
 	def get_item_data(self,csid):
 		response = self.run_query(

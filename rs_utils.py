@@ -61,6 +61,14 @@ class RSpaceRequest:
 
 		return response
 
+	def get_resource_field_data(self,resource_id=None):
+		self.rs_api_function = "get_resource_field_data"
+		self.parameters = self.format_params({"resource":f"{resource_id}"})
+		self.make_query()
+		response = self.post_query()
+
+		return response
+
 	def update_field(self,resource_id=None,field_id=None,value=None):
 		self.rs_api_function = "update_field"
 		self.parameters = self.format_params({
@@ -86,7 +94,7 @@ class RSpaceRequest:
 			query,
 			sign
 			)
-		# print(self.query_url)
+		print(self.query_url)
 
 	def post_query(self):
 		if not self.query_url:
@@ -107,7 +115,11 @@ def make_rsid_query_list(rsids=[]):
 	query_list = f"!list{':'.join([x for x in rsid_list])}"
 	return query_list
 
-def get_resource_data(rs_api_function, parameters):
-	# or like this?
-	# kwargs = parameters for api call
-	pass
+def filter_field_data_list(field_list,field_to_find):
+	# print([x['value'] for x in field_list if x['name'] == field_to_find])
+	try:
+		value = "".join([x['value'] for x in field_list if x['name'] == field_to_find])
+	except:
+		value = None
+
+	return value

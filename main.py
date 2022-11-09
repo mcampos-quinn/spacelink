@@ -1,13 +1,34 @@
 from fastapi import FastAPI
-from rs_utils import RSRequest
+# local imports
+import cs_utils
+import rs_utils
 
 
 app = FastAPI()
 
-@app.get("/validate_CSID/{rsid}")
-async def validate_CSID(rsid):
-    rsid
-    return {"message": "Hello World"}
+@app.post("/validate_cs_object_id/{cspace_instance}/{resource_id}")
+# passing a cspace instance to the url (matching one set in config) and a
+# resource_id, validate the cspace object ID entered within resourcespace metadata
+async def validate_CSID(cspace_instance,resource_id):
+	return_value = {"Valid":False,"URL":""}
+	rspace_requester = rs_utils.RSpaceRequest()
+	cspace_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
+	response = rspace_requester.get_resource_field_data(resource_id=resource_id)
+	if response:
+		data = response
+	else:
+		data = 'false'
+	obj_no = rs_utils.filter_field_data_list(data,'acc')
+	if obj_no:
+		response = cspace_requester.run_query(
+			cspace_service='collectionobjects',
+			parameters=f"?as=collectionobjects_common:objectNumber='{obj_no}'"
+			)
+		csid,url = cspace_requester.parse_paged_response(response.text)
+		if csid and url:
+			return_value = {"Valid":True,"URL":url}
+
+	return return_value
 
 
 '''
