@@ -28,11 +28,11 @@ Usage: `python3 nightlink.py MY_CSPACE_INSTANCE`
 
 1) button is pushed on rs record view
 
-2) triggers an async (AJAX?) GET request to specified URL, including RSID as a parameter
+2) triggers a POST request to specified URL, including RSID as a parameter
 
-3) use the rsid and query type to query rs back
+3) use the rsid and query type to query rs back and retrieve some relevant piece of metadata
 
-4) use rs arbitrary value (i.e. cspace object id) to query cspace again
+4) use rs arbitrary value (i.e. "cspace object id/accession number") to query cspace again
 
 5) send cspace response back to rs
 
