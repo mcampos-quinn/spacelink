@@ -70,3 +70,11 @@ async def push_image(cspace_instance,resource_id):
 			pushed = cs_utils.push_derivative(rs_item,cs_requester,rs_requester)
 
 	return pushed
+
+@app.post("/push_image_group/{cspace_instance}/{resource_id}")
+# using the resource id, query for the value (set in config.py?) in the RS record that will be used
+# to define a "group" within RS. For example, reource 31 will have a "cinefiles_id"
+# value of 60113, which is re-queried to form a "group" that will all have their
+# derivatives pushed to the relevant cspace record 
+async def push_image_group(cspace_instance,resource_id):
+	pass
