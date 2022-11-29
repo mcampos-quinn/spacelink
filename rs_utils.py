@@ -12,7 +12,7 @@ class RSpaceObject:
 	def __init__(self,
 		rsid=None,
 		csid=None,
-		metadata={},
+		metadata=None,
 		local_filepath=None,
 		alternative_files=[(None,None)],
 		derivative_url=None):
@@ -139,18 +139,18 @@ def fetch_derivative_urls(rs_requester,resource_type,rsids=[],sinigle_rsid=None)
 	# rsids should be a list of dicts from rs_utils.do_search()
 	# return a list of dicts, now including the url for the deriv
 	preview_query_string,rsids = make_rsid_query_list(rsids=rsids,single_rsid=sinigle_rsid)
-	print(preview_query_string)
+	# print(preview_query_string)
 	previews = rs_requester.search_get_previews(
 		search_string=preview_query_string,
 		resource_type=resource_type
 		)
-
+	# print("previews")
+	# print(previews)
 	url_key = 'url_'+config.DERIVATIVE_SIZE
-	print(previews)
 	for x in previews:
 		if url_key in x:
 			for item in rsids:
 				if x['ref'] == item['ref']:
 					item['derivative url'] = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
-	print(rsids)
+	# print(rsids)
 	return rsids

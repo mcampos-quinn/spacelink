@@ -47,7 +47,7 @@ class CSpaceRequest:
 
 		return url
 
-def parse_paged_response(response,cspace_requester):
+def parse_paged_response(response,cs_requester):
 	# get the csid for hopefully the one item in a search by acc no
 	csid = uri = None
 	tree = etree.XML(response.encode())
@@ -56,18 +56,18 @@ def parse_paged_response(response,cspace_requester):
 	# print(number_of_results)
 	if int(number_of_results) == 1:
 		csid = tree.find(".//csid").text
-		# uri = tree.find(".//uri").text
-		url = cspace_requester.make_url(csid)
+		url = cs_requester.make_url(csid)
 		# print(csid)
 	return csid,url
 
-def get_item_data(csid,cspace_requester):
-	response = cspace_requester.run_query(
+def get_item_data(csid,cs_requester):
+	print(csid)
+	response = cs_requester.run_query(
 		cspace_service='collectionobjects',
 		parameters="/"+csid)
 	full_item_xml = etree.XML(response.text.encode())
 	# print(full_item_xml)
-	fields_to_extract = cspace_requester.instance_config['fields_to_extract']
+	fields_to_extract = cs_requester.instance_config['fields_to_extract']
 	temp={}
 	for k,v in fields_to_extract.items():
 		# print(v)
@@ -75,32 +75,42 @@ def get_item_data(csid,cspace_requester):
 	# print(temp)
 	return temp
 
-def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cspace_requester):
+def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 	# fetch and update metadata from cspace to resourcespace
 	# rs_item should be a RSpaceObject instance
-	response = cspace_requester.run_query(
+	response = cs_requester.run_query(
 		cspace_service='collectionobjects',
 		parameters=f"?as=collectionobjects_common:objectNumber='{cs_object_id}'"
 		)
 	# print(response.text)
-	csid,url = parse_paged_response(response.text,cspace_requester)
+	try:
+		csid,url = parse_paged_response(response.text,cs_requester)
+	except:
+		csid = None
 	if csid:
-		print(csid)
+		# print("csid????")
+		# print(csid)
 		rs_item.csid = csid
-		rs_item.metadata = get_item_data(cs_object_id,cspace_requester)
-		for k,v in rs_item.metadata.items():
-			if v:
-				rs_requester.update_field(
-					resource_id=rs_item.rsid,
-					field_id=k,
-					value=v)
+		try:
+			rs_item.metadata = get_item_data(csid,cs_requester)
+			# print(rs_item.metadata)
+		except:
+			pass
+		if rs_item.metadata:
+			rs_requester.update_field(resource_id=rs_item.rsid,field_id="116",value=cs_requester.make_url(csid))
+			for k,v in rs_item.metadata.items():
+				if v:
+					rs_requester.update_field(
+						resource_id=rs_item.rsid,
+						field_id=k,
+						value=v)
 
 	return rs_item
 
-def push_derivative(rs_item,cspace_requester,rs_requester):
+def push_derivative(rs_item,cs_requester,rs_requester):
 	# rs_item should be a RSpaceObject instance
 	return_value = False
-	response = cspace_requester.run_query(
+	response = cs_requester.run_query(
 		cspace_service='media',
 		parameters=f'?blobUri={rs_item.derivative_url}',
 		verb='post',
@@ -110,7 +120,7 @@ def push_derivative(rs_item,cspace_requester,rs_requester):
 		media_uri = response.headers['Location']
 		media_csid = re.match('.+\/([a-fA-F0-9-]+)',media_uri).group(1)
 		payload = relation_payload.format(media_csid,rs_item.csid)
-		response = cspace_requester.run_query(
+		response = cs_requester.run_query(
 			cspace_service='relations',
 			verb='post',
 			payload=payload
@@ -119,7 +129,7 @@ def push_derivative(rs_item,cspace_requester,rs_requester):
 			response = rs_requester.update_field(
 				resource_id=rs_item.rsid,
 				# here again the synced field ID should come from config
-				field_id='101',
+				field_id='111',
 				value='true'
 			)
 			return_value = True
