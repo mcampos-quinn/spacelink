@@ -82,7 +82,7 @@ def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 		cspace_service='collectionobjects',
 		parameters=f"?as=collectionobjects_common:objectNumber='{cs_object_id}'"
 		)
-	# print(response.text)
+	print(response.text)
 	try:
 		csid,url = parse_paged_response(response.text,cs_requester)
 	except:
@@ -125,6 +125,7 @@ def push_derivative(rs_item,cs_requester,rs_requester):
 			verb='post',
 			payload=payload
 		)
+		print(payload)
 		if response.ok:
 			response = rs_requester.update_field(
 				resource_id=rs_item.rsid,

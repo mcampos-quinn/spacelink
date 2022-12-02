@@ -36,6 +36,8 @@ async def validate_cs_object_id(cspace_instance,resource_id):
 				)
 			if rs_item.csid:
 				return_value = {"Valid":True,"URL":rs_item.csid}
+			else:
+				return_value = {"Valid":"Invalid CSpace Object ID!","URL":rs_item.csid}
 
 	return return_value
 
@@ -46,7 +48,7 @@ async def validate_cs_object_id(cspace_instance,resource_id):
 async def push_image(cspace_instance,resource_id):
 	resource_type = config.CSPACE_INSTANCE[cspace_instance]['resource type']
 	pushed = False
-	return_value = {"Success":False,"URL":""}
+	return_value = {"Success":False}
 	rs_item = rs_utils.RSpaceObject(rsid=resource_id)
 	rs_requester = rs_utils.RSpaceRequest()
 	cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
@@ -56,6 +58,8 @@ async def push_image(cspace_instance,resource_id):
 		# print([x for x in field_data if 'acc' in x])
 		# print(cs_object_id)
 		rsids = rs_utils.fetch_derivative_urls(rs_requester,resource_type,rsids=[],sinigle_rsid=resource_id)
+		# i think this should iterate over rsids instead?? in case there's more than
+		# one to push??
 		item = rsids[0]
 		rs_item.derivative_url = item['derivative url']
 		cs_object_id = rs_utils.filter_field_data_list(field_data,'accessionnumber')
@@ -68,13 +72,17 @@ async def push_image(cspace_instance,resource_id):
 				cs_requester
 				)
 			pushed = cs_utils.push_derivative(rs_item,cs_requester,rs_requester)
+			return_value = {"Success":True}
+		else:
+			return_value = {"Success":f"Unable to push the derivative for {rs_item.rsid}!"}
 
-	return pushed
+
+	return return_value
 
 @app.post("/push_image_group/{cspace_instance}/{resource_id}")
 # using the resource id, query for the value (set in config.py?) in the RS record that will be used
 # to define a "group" within RS. For example, reource 31 will have a "cinefiles_id"
 # value of 60113, which is re-queried to form a "group" that will all have their
-# derivatives pushed to the relevant cspace record 
+# derivatives pushed to the relevant cspace record
 async def push_image_group(cspace_instance,resource_id):
 	pass
