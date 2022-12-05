@@ -120,13 +120,19 @@ def push_derivative(rs_item,cs_requester,rs_requester):
 		media_uri = response.headers['Location']
 		media_csid = re.match('.+\/([a-fA-F0-9-]+)',media_uri).group(1)
 		payload = relation_payload.format(rs_item.csid,media_csid)
-		print(payload)
+		rev_payload = reverse_payload.format(media_csid,rs_item.csid)
+		# print(payload)
 		response = cs_requester.run_query(
 			cspace_service='relations',
 			verb='post',
 			payload=payload
 		)
-		print(response.headers['Location'])
+		response = cs_requester.run_query(
+			cspace_service='relations',
+			verb='post',
+			payload=rev_payload
+		)
+		# print(response.headers['Location'])
 
 		if response.ok:
 			response = rs_requester.update_field(
@@ -147,6 +153,18 @@ media_payload = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 relation_payload="""<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<document>
+	<ns2:relations_common xmlns:ns2="http://collectionspace.org/services/relation">
+	  <subjectCsid>{}</subjectCsid>
+	  <subjectDocumentType>collectionobjects</subjectDocumentType>
+	  <relationshipType>affects</relationshipType>
+	  <objectCsid>{}</objectCsid>
+	  <objectDocumentType>media</objectDocumentType>
+	</ns2:relations_common>
+</document>
+"""
+
+reverse_payload="""<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <document>
 	<ns2:relations_common xmlns:ns2="http://collectionspace.org/services/relation">
 	  <subjectCsid>{}</subjectCsid>
