@@ -6,6 +6,7 @@ import urllib
 import requests
 # local imports
 import config
+import cs_utils
 
 class RSpaceObject:
 	"""defines an object (resource) in resourcespace"""
@@ -115,16 +116,26 @@ class RSpaceRequest:
 
 		return response
 
-def make_rsid_query_list(rsids=[],single_rsid=None):
+def make_resource_objs(resource_dict_list):
+	resource_obj_list = []
+	for item in resource_dict_list:
+		rsid = item['ref']
+		resource = RSpaceObject(rsid=rsid)
+		resource_obj_list.append(resource)
+
+	return resource_obj_list
+
+def make_rsid_query_list(resource_obj_list=[]):#,single_resource=None):
+	# take in a list of RSpaceObject instances and make a query string for RS
 	rsid_list = []
-	if not rsids == []:
-		for rsid in rsids:
-			rsid_list.append(rsid['ref'])
+	if len(resource_obj_list) > 1:
+		for resource in resource_obj_list:
+			rsid_list.append(resource.rsid)
 		query_list = f"!list{':'.join([x for x in rsid_list])}"
-	elif single_rsid:
-		query_list = f"!list{single_rsid}"
-		rsids = [{'ref':single_rsid}]
-	return query_list,rsids
+	elif len(resource_obj_list) == 1:
+		query_list = f"!list{resource_obj_list[0].rsid}"
+		# rsids = [{'ref':single_rsid}]
+	return query_list#,rsids
 
 def filter_field_data_list(field_list,field_to_find):
 	# print([x['value'] for x in field_list if x['name'] == field_to_find])
@@ -135,22 +146,32 @@ def filter_field_data_list(field_list,field_to_find):
 
 	return value
 
-def fetch_derivative_urls(rs_requester,resource_type,rsids=[],sinigle_rsid=None):
-	# rsids should be a list of dicts from rs_utils.do_search()
-	# return a list of dicts, now including the url for the deriv
-	preview_query_string,rsids = make_rsid_query_list(rsids=rsids,single_rsid=sinigle_rsid)
-	# print(preview_query_string)
+def validate_cs_object_id(resource_obj,rs_requester,cs_requester):
+	field_data = rs_requester.get_resource_field_data(resource_id=resource_obj.rsid)
+	cs_object_id = filter_field_data_list(field_data,'accessionnumber')
+	if cs_object_id:
+		resource_obj = cs_utils.fetch_cs_metadata(
+			resource_obj,
+			rs_requester,
+			cs_object_id,
+			cs_requester
+			)
+
+	return resource_obj
+
+def fetch_derivative_urls(rs_requester,resource_type,resource_obj_list=[]):#,single_resource=None):
+	# resource_obj_list should be a list of RSpaceObject instances
+	# return the list, now including the url for the deriv
+	preview_query_string = make_rsid_query_list(resource_obj_list=resource_obj_list)#,single_resource=single_resource)
 	previews = rs_requester.search_get_previews(
 		search_string=preview_query_string,
 		resource_type=resource_type
 		)
-	# print("previews")
-	# print(previews)
 	url_key = 'url_'+config.DERIVATIVE_SIZE
 	for x in previews:
 		if url_key in x:
-			for item in rsids:
-				if x['ref'] == item['ref']:
-					item['derivative url'] = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
+			for item in resource_obj_list:
+				if x['ref'] == item.rsid:
+					item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
 	# print(rsids)
-	return rsids
+	return resource_obj_list

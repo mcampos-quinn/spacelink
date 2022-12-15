@@ -32,72 +32,33 @@ if cspace_instance in config.CSPACE_INSTANCE:
 else:
 	sys.exit(1)
 
-cspace_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
+cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
 rs_requester = rs_utils.RSpaceRequest()
 
-# return a list of resource ids for new items (field 101, 'synced' is empty)
-# this field should also be set in config rather than hard coded
-sync_check_field = '101'
-rsids = rs_requester.do_search(
+# return a list of resource ids for new items (e.g. where resourcespace field 101, 'synced,' is empty)
+sync_check_field = config.CSPACE_INSTANCE[cspace_instance]['rspace_sync_check_field']
+resource_dict_list = rs_requester.do_search(
 	search_string = f"!empty{sync_check_field}",
 	resource_type = resource_type
 	)
+resource_obj_list = rs_utils.make_resource_objs(resource_dict_list)
 
-rsids = rs_utils.fetch_derivative_urls(rsids,rs_requester,resource_type)
+temp = []
+for resource_obj in resource_obj_list:
+	resource_obj = rs_utils.validate_cs_object_id(resource_obj,rs_requester,cs_requester)
+	if not resource_obj.csid:
+		# log the error and/or add the note to the record in rspace
+		pass
+	temp.append(resource_obj)
+resource_obj_list = temp
 
-# now go back and get the url for the relevant preview size (set in config)
-# preview_query_string = rs_utils.make_rsid_query_list(rsids)
-# previews = rs_requester.search_get_previews(
-# 	search_string=preview_query_string,
-# 	resource_type=resource_type
-# 	)
-#
-# url_key = 'url_'+config.DERIVATIVE_SIZE
-# for x in previews:
-# 	if url_key in x:
-# 		for y in rsids:
-# 			if x['ref'] == y['ref']:
-# 				y[url_key] = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
-
-for resource in rsids:
-	item = rs_utils.RSpaceObject(rsid=resource['ref'])
-	print(resource['field8'])
-	# object_number will be from a parsed filename, or from an accession number field directly
-	object_number = "2021.16.1"
-	# on second thought the below request could just be a simple call to
-	# url/cspace-services/collectionobjects/{object_number}
-	# response = cspace_requester.run_query(
-	# 	cspace_service='collectionobjects',
-	# 	parameters=f"?as=collectionobjects_common:objectNumber='{object_number}'"
-	# 	)
-	# csid,uri = cspace_requester.parse_paged_response(response.text)
-	# if csid:
-	# 	item.metadata = cspace_requester.get_item_data(csid)
-	# 	for k,v in item.metadata.items():
-	# 		if v:
-	# 			rs_requester.update_field(
-	# 				resource_id=item.rsid,
-	# 				field_id=k,
-	# 				value=v)
-	# 	response = cspace_requester.run_query(
-	# 		cspace_service='media',
-	# 		parameters=f'?blobUri={resource[url_key]}',
-	# 		verb='post',
-	# 		payload = cs_utils.media_payload
-	# 	)
-	# 	if response.ok:
-	# 		media_uri = response.headers['Location']
-	# 		media_csid = re.match('.+\/([a-fA-F0-9-]+)',media_uri).group(1)
-	# 		payload = cs_utils.relation_payload.format(media_csid,csid)
-	# 		response = cspace_requester.run_query(
-	# 			cspace_service='relations',
-	# 			verb='post',
-	# 			payload=payload
-	# 		)
-	# 		if response.ok:
-	# 			response = rs_requester.update_field(
-	# 				resource_id=item.rsid,
-	# 				# here again the synced field ID should come from config
-	# 				field_id='101',
-	# 				value='true'
-	# 			)
+resource_obj_list = rs_utils.fetch_derivative_urls(
+	rs_requester,
+	resource_type,
+	resource_obj_list=resource_obj_list
+	)
+for resource_obj in resource_obj_list:
+	pushed = cs_utils.push_derivative(resource_obj,cs_requester,rs_requester)
+	if pushed:
+		# log the action
+		pass
