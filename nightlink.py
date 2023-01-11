@@ -59,7 +59,7 @@ for resource_obj in resource_obj_list:
 		# log the error and/or add the note to the record in rspace
 		current_link_log.logger.warning(f"Invalid/incorrect CSpace object ID for RSpace item {resource_obj.rsid}!!")
 		# this should be set in config
-		rs_requester.update_field(rsid=resource_obj.rsid,field="118",value="Invalid/incorrect cspace object ID!")
+		rs_requester.update_field(resource_id=resource_obj.rsid,field_id="118",value="Invalid/incorrect cspace object ID!")
 	temp.append(resource_obj)
 resource_obj_list = temp
 

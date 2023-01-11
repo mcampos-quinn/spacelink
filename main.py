@@ -32,7 +32,7 @@ async def validate_cs_object_id(cspace_instance,resource_id):
 		return_value = {"Valid":True,"CSID":resource_obj.csid}
 	else:
 		current_link_log.logger.warning(f"Invalid/incorrect CSpace object ID for RSpace item {resource_obj.rsid}!!")
-		rs_requester.update_field(rsid=resource_obj.rsid,field="118",value="Invalid/incorrect cspace object ID!")
+		rs_requester.update_field(resource_id=resource_obj.rsid,field_id="118",value="Invalid/incorrect cspace object ID!")
 		return_value = {"Valid":"Invalid CSpace Object ID!","CSID":None}
 
 	return return_value
