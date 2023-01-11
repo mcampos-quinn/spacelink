@@ -12,6 +12,7 @@ the art collection.
 """
 # standard library imports
 from datetime import datetime
+import logging
 from pathlib import Path
 import re
 import sys
@@ -20,8 +21,10 @@ import urllib
 # local imports
 import config
 import cs_utils
+import link_log
 import rs_utils
 
+current_link_log = link_log.LinkLog()
 # usage
 # `python3 nightlink.py MY_CSPACE_INSTANCE`
 cspace_instance = sys.argv[1]
@@ -30,6 +33,7 @@ if cspace_instance in config.CSPACE_INSTANCE:
 	resource_type = config.CSPACE_INSTANCE[cspace_instance]['resource type']
 	print("ok")
 else:
+	current_link_log.logger.warning("config is misconfigured, fix it!!")
 	sys.exit(1)
 
 cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
@@ -43,7 +47,8 @@ resource_dict_list = rs_requester.do_search(
 	)
 if resource_dict_list == []:
 	# nothing to do, quit and log
-	sys.exit()
+	current_link_log.logger.info("No new images today :(")
+	sys.exit(0)
 # print(resource_dict_list)
 resource_obj_list = rs_utils.make_resource_objs(resource_dict_list)
 
@@ -52,7 +57,9 @@ for resource_obj in resource_obj_list:
 	resource_obj = rs_utils.validate_cs_object_id(resource_obj,rs_requester,cs_requester)
 	if not resource_obj.csid:
 		# log the error and/or add the note to the record in rspace
-		pass
+		current_link_log.logger.warning(f"Invalid/incorrect CSpace object ID for RSpace item {resource_obj.rsid}!!")
+		# this should be set in config
+		rs_requester.update_field(rsid=resource_obj.rsid,field="118",value="Invalid/incorrect cspace object ID!")
 	temp.append(resource_obj)
 resource_obj_list = temp
 
@@ -64,5 +71,4 @@ resource_obj_list = rs_utils.fetch_derivative_urls(
 for resource_obj in resource_obj_list:
 	pushed = cs_utils.push_derivative(resource_obj,cs_requester,rs_requester)
 	if pushed:
-		# log the action
-		pass
+		current_link_log.logger.info(f"Successfully synced RS item {resource_obj.rsid}")
