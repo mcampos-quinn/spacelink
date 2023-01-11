@@ -135,6 +135,8 @@ def make_rsid_query_list(resource_obj_list=[]):#,single_resource=None):
 	elif len(resource_obj_list) == 1:
 		query_list = f"!list{resource_obj_list[0].rsid}"
 		# rsids = [{'ref':single_rsid}]
+	else:
+		query_list = None
 	return query_list#,rsids
 
 def filter_field_data_list(field_list,field_to_find):

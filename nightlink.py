@@ -41,6 +41,10 @@ resource_dict_list = rs_requester.do_search(
 	search_string = f"!empty{sync_check_field}",
 	resource_type = resource_type
 	)
+if resource_dict_list == []:
+	# nothing to do, quit and log
+	sys.exit()
+# print(resource_dict_list)
 resource_obj_list = rs_utils.make_resource_objs(resource_dict_list)
 
 temp = []

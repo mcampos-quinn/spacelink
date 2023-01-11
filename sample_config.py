@@ -5,11 +5,11 @@ import urllib
 
 CSPACE_INSTANCE = {
 	"art_collection": {
-		"resource type":"13,
+		"resource type":13,
 		"fields_to_extract":{
 			"rs field id":"cspace field tag name",
 			# ~ ~ ~ NOTE!! this  might also need to be an XPath expression to get
-			# at a nested tag. in the below example the cspace <dateDisplayDate> tag can exist 
+			# at a nested tag. in the below example the cspace <dateDisplayDate> tag can exist
 			# under any number of parent tag groups, so we have to specify which
 			# one we actually want to retrieve
 			"12":"objectProductionDateGroup//dateDisplayDate"
