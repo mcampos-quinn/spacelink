@@ -60,7 +60,8 @@ for resource_obj in resource_obj_list:
 		current_link_log.logger.warning(f"Invalid/incorrect CSpace object ID for RSpace item {resource_obj.rsid}!!")
 		# this should be set in config
 		rs_requester.update_field(resource_id=resource_obj.rsid,field_id="118",value="Invalid/incorrect cspace object ID!")
-	temp.append(resource_obj)
+	else:
+		temp.append(resource_obj)
 resource_obj_list = temp
 
 resource_obj_list = rs_utils.fetch_derivative_urls(
