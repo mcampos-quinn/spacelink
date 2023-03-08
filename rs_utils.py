@@ -131,9 +131,9 @@ def make_rsid_query_list(resource_obj_list=[]):#,single_resource=None):
 	if len(resource_obj_list) > 1:
 		for resource in resource_obj_list:
 			rsid_list.append(resource.rsid)
-		query_list = f"!list{':'.join([x for x in rsid_list])}"
+		query_list = f"!list{':'.join([str(x) for x in rsid_list])}"
 	elif len(resource_obj_list) == 1:
-		query_list = f"!list{resource_obj_list[0].rsid}"
+		query_list = f"!list{str(resource_obj_list[0].rsid)}"
 		# rsids = [{'ref':single_rsid}]
 	else:
 		query_list = None
