@@ -39,6 +39,10 @@ else:
 cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
 rs_requester = rs_utils.RSpaceRequest()
 
+if not rs_requester.status:
+	current_link_log.logger.warning("The ResourceSpace API is broken or misconfigured.")
+	sys.exit(1)
+
 # return a list of resource ids for new items (e.g. where resourcespace field 101, 'synced,' is empty)
 sync_check_field = config.CSPACE_INSTANCE[cspace_instance]['rspace_sync_check_field']
 resource_dict_list = rs_requester.do_search(

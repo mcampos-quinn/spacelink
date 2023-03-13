@@ -33,12 +33,24 @@ class RSpaceRequest:
 		rs_api_function=None,
 		parameters=None):
 
+		self.status = None
 		self.rs_api_function = rs_api_function
 		self.parameters = parameters
 		self.rs_user = config.RS_USER
 		self.rs_userkey = config.RS_USERKEY
 		self.rs_url = config.RS_URL
 		self.query_url = None
+
+		self.check_status()
+
+	def check_status(self):
+		self.rs_api_function = "get_system_status"
+		self.make_query()
+		response = self.post_query()
+		if not response:
+			self.status = None
+		else:
+			self.status = True
 
 	def format_params(self,parameters):
 		params = "&".join(["{}={}".format(k,v) for k,v in parameters.items()])
@@ -49,7 +61,7 @@ class RSpaceRequest:
 		self.parameters = self.format_params({
 			"search":search_string,
 			"restypes":resource_type,
-			"getsizes":config.DERIVATIVE_SIZE
+			"getsizes":config.DERIVATIVE_SIZES
 			})
 		self.make_query()
 		response = self.post_query()
@@ -63,7 +75,7 @@ class RSpaceRequest:
 		self.parameters = self.format_params({
 			"search":search_string,
 			"restypes":resource_type,
-			"getsizes":config.DERIVATIVE_SIZE
+			"getsizes":config.DERIVATIVE_SIZES
 			})
 		self.make_query()
 		response = self.post_query()
@@ -109,10 +121,13 @@ class RSpaceRequest:
 		if not self.query_url:
 			sys.exit(1) # lol this needs to be less extreme
 		response = requests.post(self.query_url)
-		try:
-			response = response.json()
-		except:
-			pass
+		if str(response.status_code).startswith('20'):
+			try:
+				response = response.json()
+			except:
+				pass
+		else:
+			response = None
 
 		return response
 
@@ -169,11 +184,13 @@ def fetch_derivative_urls(rs_requester,resource_type,resource_obj_list=[]):#,sin
 		search_string=preview_query_string,
 		resource_type=resource_type
 		)
-	url_key = 'url_'+config.DERIVATIVE_SIZE
-	for x in previews:
-		if url_key in x:
-			for item in resource_obj_list:
-				if x['ref'] == item.rsid:
-					item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
+	for size in config.DERIVATIVE_SIZES:
+		url_key = 'url_'+size
+		for x in previews:
+			if url_key in x:
+				for item in resource_obj_list:
+					if x['ref'] == item.rsid:
+						item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
+				yield
 	# print(rsids)
 	return resource_obj_list

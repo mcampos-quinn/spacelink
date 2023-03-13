@@ -24,5 +24,8 @@ CSPACE_PASSWORD = ""
 RS_URL = "https://bla/api/"
 RS_USER = urllib.parse.quote_plus("yr mom")
 RS_USERKEY = "bla"
-# this is defined in RS as 'preview size', e.g. 'scr'
-DERIVATIVE_SIZE = "scr"
+# this is a list of sizes defined in RS as 'preview size', e.g. 'scr'
+# the list should be ordered in preferential sequence; RS will only make a given derivative
+# size if the original is larger than the derivative pixel dimensions
+# ["art (the size we really want)","xyz (the next preferred size)","thm (the smallest, made in RS by default)"]
+DERIVATIVE_SIZES = ["scr","thm"]
