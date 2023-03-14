@@ -191,6 +191,7 @@ def fetch_derivative_urls(rs_requester,resource_type,resource_obj_list=[]):#,sin
 				for item in resource_obj_list:
 					if x['ref'] == item.rsid:
 						item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
-				yield
+				break
+		break
 	# print(rsids)
 	return resource_obj_list
