@@ -56,7 +56,7 @@ class RSpaceRequest:
 		params = "&".join(["{}={}".format(k,v) for k,v in parameters.items()])
 		return params
 
-	def search_get_previews(self,search_string=None,resource_type=None,size=None):
+	def search_get_previews(self,search_string=None,resource_type=None,size=",".join(config.DERIVATIVE_SIZES)):
 		self.rs_api_function = "search_get_previews"
 		self.parameters = self.format_params({
 			"search":search_string,
@@ -181,18 +181,20 @@ def fetch_derivative_urls(rs_requester,resource_type,resource_obj_list=[]):#,sin
 	# return the list, now including the url for the deriv
 	preview_query_string = make_rsid_query_list(resource_obj_list=resource_obj_list)#,single_resource=single_resource)
 	previews = rs_requester.search_get_previews(
-		search_string=preview_query_string,
-		resource_type=resource_type
-		)
-	for item in resource_obj_list:
-		for size in config.DERIVATIVE_SIZES:
-			url_key = 'url_'+size
-			for x in previews:
-				if url_key in x:
-					if x['ref'] == item.rsid:
-						item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
-			if item.derivative_url:
-				break
+	    search_string=preview_query_string,
+	    resource_type=resource_type,
+	    size=",".join(config.DERIVATIVE_SIZES)
+	    )
+        for item in resource_obj_list:
+            for size in config.DERIVATIVE_SIZES:
+                url_key = 'url_'+size
+                for x in previews:
+                    if url_key in x:
+                        if x['ref'] == item.rsid:
+                        	item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
+                if item.derivative_url:
+	                print("ITEM DERIV URL"+str(item.derivative_url))
+                    break
 
 
 	# print(rsids)
