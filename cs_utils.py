@@ -70,9 +70,13 @@ def get_item_data(csid,cs_requester):
 	fields_to_extract = cs_requester.instance_config['fields_to_extract']
 	temp={}
 	for k,v in fields_to_extract.items():
-		# print(v)
-		temp[k] = full_item_xml.find(f".//{v}").text
-	# print(temp)
+		print(v)
+		try:
+			temp[k] = ", ".join(full_item_xml.iterfind(f".//{v}"))
+			print(temp[k])
+		except:
+			print(full_item_xml.find(f".//{v}"))
+	print(temp)
 	return temp
 
 def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
@@ -85,17 +89,15 @@ def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 	# print(response.text)
 	try:
 		csid,url = parse_paged_response(response.text,cs_requester)
+		# print(url)
 	except:
 		csid = None
 	if csid:
 		# print("csid????")
 		# print(csid)
 		rs_item.csid = csid
-		try:
-			rs_item.metadata = get_item_data(csid,cs_requester)
-			# print(rs_item.metadata)
-		except:
-			pass
+		rs_item.metadata = get_item_data(csid,cs_requester)
+
 		if rs_item.metadata:
 			rs_requester.update_field(resource_id=rs_item.rsid,field_id="116",value=cs_requester.make_url(csid))
 			for k,v in rs_item.metadata.items():

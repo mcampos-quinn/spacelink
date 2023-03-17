@@ -165,6 +165,7 @@ def filter_field_data_list(field_list,field_to_find):
 
 def validate_cs_object_id(resource_obj,rs_requester,cs_requester):
 	field_data = rs_requester.get_resource_field_data(resource_id=resource_obj.rsid)
+	# print(field_data)
 	cs_object_id = filter_field_data_list(field_data,'accessionnumber')
 	if cs_object_id:
 		resource_obj = cs_utils.fetch_cs_metadata(
