@@ -72,7 +72,7 @@ def get_item_data(csid,cs_requester):
 	for k,v in fields_to_extract.items():
 		print(v)
 		try:
-			temp[k] = ", ".join(full_item_xml.iterfind(f".//{v}"))
+			temp[k] = ", ".join([x.text for x in full_item_xml.iterfind(f".//{v}") if x.text is not None])
 			print(temp[k])
 		except:
 			print(full_item_xml.find(f".//{v}"))
