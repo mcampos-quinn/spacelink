@@ -15,6 +15,7 @@ class RSpaceObject:
 		csid=None,
 		metadata=None,
 		local_filepath=None,
+		filename=None,
 		alternative_files=[(None,None)],
 		derivative_url=None):
 		self.rsid = rsid
@@ -22,6 +23,7 @@ class RSpaceObject:
 		self.csid = csid
 		self.metadata = metadata
 		self.local_filepath = local_filepath
+		self.filename = filename
 		# a list of tuples (rsid,local_filepath) for alt files
 		self.alternative_files = alternative_files
 		self.derivative_url = derivative_url
@@ -166,6 +168,7 @@ def filter_field_data_list(field_list,field_to_find):
 def validate_cs_object_id(resource_obj,rs_requester,cs_requester):
 	field_data = rs_requester.get_resource_field_data(resource_id=resource_obj.rsid)
 	# print(field_data)
+	resource_obj.filename = filter_field_data_list(field_data,'originalfilename')
 	cs_object_id = filter_field_data_list(field_data,'accessionnumber')
 	if cs_object_id:
 		resource_obj = cs_utils.fetch_cs_metadata(

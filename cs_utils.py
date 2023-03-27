@@ -1,6 +1,6 @@
 # standard library imports
 import base64
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import urllib
 from urllib.parse import urljoin
@@ -33,6 +33,15 @@ class CSpaceRequest:
 		elif verb == 'post':
 			headers = {"Content-Type":"application/xml"}
 			response = requests.post(url,auth=(
+				config.CSPACE_USER,
+				config.CSPACE_PASSWORD
+				),
+				headers=headers,
+				data=payload
+			)
+		elif verb == 'put':
+			headers = {"Content-Type":"application/xml"}
+			response = requests.put(url,auth=(
 				config.CSPACE_USER,
 				config.CSPACE_PASSWORD
 				),
@@ -121,6 +130,8 @@ def push_derivative(rs_item,cs_requester,rs_requester):
 	if response.ok:
 		media_uri = response.headers['Location']
 		media_csid = re.match('.+\/([a-fA-F0-9-]+)',media_uri).group(1)
+		media_record_xml = etree.XML(response.text.encode())
+		update_blob_filename(media_record_xml,cs_requester,rs_item)
 		payload = relation_payload.format(rs_item.csid,media_csid)
 		rev_payload = reverse_payload.format(media_csid,rs_item.csid)
 		# print(payload)
@@ -147,10 +158,35 @@ def push_derivative(rs_item,cs_requester,rs_requester):
 
 	return return_value
 
+def update_blob_filename(media_record_xml,cs_requester,rs_item):
+	blob_csid = media_record_xml.find(".//blobCsid").text
+	# print(blob_csid)
+	if rs_item.filename:
+		# first rename the original file extension to jpg
+		filename = Path(rs_item.filename).stem
+		filename = PurePath(filename).with_suffix('.jpg')
+		payload = blob_update_payload.format(filename)
+		response = cs_requester.run_query(
+			cspace_service='blobs',
+			parameters=f'/{blob_csid}',
+			verb='put',
+			payload=payload
+		)
+	# print(response.text)
+
+
 media_payload = """<?xml version="1.0" encoding="UTF-8"?>
 <document name="media">
 <ns2:media_common xmlns:ns2="http://collectionspace.org/services/media" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 </ns2:media_common>
+</document>
+"""
+
+blob_update_payload = """<?xml version="1.0" encoding="UTF-8"?>
+<document name="blobs">
+	<ns2:blobs_common xmlns:ns2="http://collectionspace.org/services/blobs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<name>{}</name>
+	</ns2:blobs_common>
 </document>
 """
 
