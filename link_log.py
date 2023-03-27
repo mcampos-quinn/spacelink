@@ -5,9 +5,9 @@ from zoneinfo import ZoneInfo
 
 # this should be set in config
 my_timezone = ZoneInfo("America/Los_Angeles")
-today = datetime.now(tz=my_timezone).strftime("%Y-%m-%d")
 
 class LinkLog():
+	today = datetime.now(tz=my_timezone).strftime("%Y-%m-%d")
 	"""class to make a logging utility"""
 	def __init__(self):
 		self.today = today
