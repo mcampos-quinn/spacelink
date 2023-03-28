@@ -52,23 +52,18 @@ async def push_image(cspace_instance,resource_id):
 	cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
 	field_data = rs_requester.get_resource_field_data(resource_id=resource_id)
 	if field_data:
+		resource_obj = rs_utils.validate_cs_object_id(resource_obj,rs_requester,cs_requester)
 		resource_obj_list = rs_utils.fetch_derivative_urls(
 			rs_requester,
 			resource_type,
 			resource_obj_list=[resource_obj]
 			)
-		item = resource_obj_list[0]
-		resource_obj.derivative_url = item['derivative url']
+		resource_obj = resource_obj_list[0]
+		# resource_obj.derivative_url = item['derivative url']
 		# this should be set in config
-		cs_object_id = rs_utils.filter_field_data_list(field_data,'accessionnumber')
-		if cs_object_id:
-			# if it has a csid, use it
-			resource_obj = cs_utils.fetch_cs_metadata(
-				resource_obj,
-				rs_requester,
-				cs_object_id,
-				cs_requester
-				)
+		# cs_object_id = rs_utils.filter_field_data_list(field_data,'accessionnumber')
+		if resource_obj.csid:
+			current_link_log.logger.info(f"CSpace object ID is valid for RSpace item {resource_obj.rsid}")
 			pushed = cs_utils.push_derivative(resource_obj,cs_requester,rs_requester)
 			if pushed:
 				current_link_log.logger.info(f"Successfully synced RSpace item {resource_obj.rsid}")
