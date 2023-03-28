@@ -57,8 +57,8 @@ async def push_image(cspace_instance,resource_id):
 			resource_type,
 			resource_obj_list=[resource_obj]
 			)
-		item = rsids[0]
-		# resource_obj.derivative_url = item['derivative url']
+		item = resource_obj_list[0]
+		resource_obj.derivative_url = item['derivative url']
 		# this should be set in config
 		cs_object_id = rs_utils.filter_field_data_list(field_data,'accessionnumber')
 		if cs_object_id:
