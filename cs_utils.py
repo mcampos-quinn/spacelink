@@ -130,6 +130,11 @@ def push_derivative(rs_item,cs_requester,rs_requester):
 	if response.ok:
 		media_uri = response.headers['Location']
 		media_csid = re.match('.+\/([a-fA-F0-9-]+)',media_uri).group(1)
+		response = cs_requester.run_query(
+			cspace_service='media',
+			parameters=f'/{media_csid}',
+			verb='get'
+			)
 		media_record_xml = etree.XML(response.text.encode())
 		update_blob_filename(media_record_xml,cs_requester,rs_item)
 		payload = relation_payload.format(rs_item.csid,media_csid)

@@ -186,8 +186,7 @@ def fetch_derivative_urls(rs_requester,resource_type,resource_obj_list=[]):#,sin
 	preview_query_string = make_rsid_query_list(resource_obj_list=resource_obj_list)#,single_resource=single_resource)
 	previews = rs_requester.search_get_previews(
 		search_string=preview_query_string,
-		resource_type=resource_type,
-		size=",".join(config.DERIVATIVE_SIZES)
+		resource_type=resource_type
 		)
 	for item in resource_obj_list:
 		for size in config.DERIVATIVE_SIZES:
