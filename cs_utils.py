@@ -88,6 +88,14 @@ def get_item_data(csid,cs_requester):
 	print(temp)
 	return temp
 
+def strip_qualifiers(metadata_value):
+	# if the value is fully qualified in cspace, get rid of the extra junk
+	# ex: urn:cspace:bampfa.cspace.berkeley.edu:vocabularies:name(itemclass):item:name(itemclass015)'Painting'
+	if str(metadata_value).startswith("urn:"):
+		metadata_value = re.match(r"^(urn:.+\')(.+)\'",metadata_value).group(2)
+
+	return metadata_value
+
 def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 	# fetch and update metadata from cspace to resourcespace
 	# rs_item should be a RSpaceObject instance
@@ -111,6 +119,7 @@ def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 			rs_requester.update_field(resource_id=rs_item.rsid,field_id="116",value=cs_requester.make_url(csid))
 			for k,v in rs_item.metadata.items():
 				if v:
+					v = strip_qualifiers(v)
 					rs_requester.update_field(
 						resource_id=rs_item.rsid,
 						field_id=k,
