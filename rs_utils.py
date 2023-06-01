@@ -43,7 +43,7 @@ class RSpaceRequest:
 		self.rs_url = config.RS_URL
 		self.query_url = None
 
-		self.check_status()
+		# self.check_status()
 
 	def check_status(self):
 		self.rs_api_function = "get_system_status"
