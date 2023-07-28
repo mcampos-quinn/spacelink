@@ -51,6 +51,7 @@ async def push_image(cspace_instance,resource_id):
 	rs_requester = rs_utils.RSpaceRequest()
 	cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
 	field_data = rs_requester.get_resource_field_data(resource_id=resource_id)
+	# print(field_data)
 	if field_data:
 		resource_obj = rs_utils.validate_cs_object_id(resource_obj,rs_requester,cs_requester)
 		resource_obj_list = rs_utils.fetch_derivative_urls(

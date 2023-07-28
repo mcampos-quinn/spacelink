@@ -60,13 +60,18 @@ def parse_paged_response(response,cs_requester):
 	# get the csid for hopefully the one item in a search by acc no
 	csid = uri = None
 	tree = etree.XML(response.encode())
-	# print(tree)
-	number_of_results = tree.findtext('totalItems')
-	# print(number_of_results)
-	if int(number_of_results) == 1:
-		csid = tree.find(".//csid").text
-		url = cs_requester.make_url(csid)
-		# print(csid)
+	# number_of_results = tree.findtext('totalItems')
+	# if int(number_of_results) == 1:
+
+	# FIXME so this logic just takes the first record that is found in the xml
+	# which could potentially be the wrong one. the only cases i'v seen where
+	# there would be more than one record matching the accession number are when
+	# there is a deleted record that is still returned. i should prob add a
+	# filter to the search that includes "recordStatus" or something, but I can't
+	# find the correct namespace... so meh
+	csid = tree.find(".//csid").text
+	url = cs_requester.make_url(csid)
+	# print(csid)
 	return csid,url
 
 def get_item_data(csid,cs_requester):
@@ -106,7 +111,7 @@ def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 	# print(response.text)
 	try:
 		csid,url = parse_paged_response(response.text,cs_requester)
-		# print(url)
+		print(csid,url)
 	except:
 		csid = None
 	if csid:
