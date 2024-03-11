@@ -7,6 +7,7 @@ import requests
 # local imports
 import config
 import cs_utils
+import link_log
 
 class RSpaceObject:
 	"""defines an object (resource) in resourcespace"""
@@ -193,8 +194,16 @@ def fetch_derivative_urls(rs_requester,resource_type,resource_obj_list=[]):#,sin
 			url_key = 'url_'+size
 			for x in previews:
 				if url_key in x:
+					# print("&&  &&"*20)
+					# print(x[url_key])
 					if str(x['ref']) == str(item.rsid):
-						item.derivative_url = re.match(r'(.+\.jpg).*',x[url_key]).group(1)
+						# resourcespace now uses a download.php script and the resulting url
+						# needs to be url-encoded for cspace to access the blob
+						url = urllib.parse.quote(f"{x[url_key]}") #.replace("@","%40").replace("?","%3F").replace("=","%3D").replace("&","%26")
+						current_link_log = link_log.LinkLog()
+						current_link_log.logger.info(f"blob uri set as {url}")
+						item.derivative_url = url
+						print(item.derivative_url)
 			if item.derivative_url:
 				print("ITEM DERIV URL"+str(item.derivative_url))
 				break

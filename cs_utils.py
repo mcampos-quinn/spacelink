@@ -23,7 +23,7 @@ class CSpaceRequest:
 
 	def run_query(self,cspace_service=None,parameters="",verb="get",headers=None,payload=None):
 		url = f"{self.cspace_services_url}/{cspace_service}{parameters}"
-		print(url)
+		# print(url)
 		if verb == "get":
 			response = requests.get(url,auth=(
 				config.CSPACE_USER,
@@ -39,6 +39,7 @@ class CSpaceRequest:
 				headers=headers,
 				data=payload
 			)
+			print(response.text)
 		elif verb == 'put':
 			headers = {"Content-Type":"application/xml"}
 			response = requests.put(url,auth=(
@@ -48,7 +49,7 @@ class CSpaceRequest:
 				headers=headers,
 				data=payload
 			)
-			# print(response.text)
+		# print(response.text)
 		return response
 
 	def make_url(self,csid):
@@ -198,6 +199,9 @@ media_payload = """<?xml version="1.0" encoding="UTF-8"?>
 <document name="media">
 <ns2:media_common xmlns:ns2="http://collectionspace.org/services/media" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 </ns2:media_common>
+<ns2:media_bampfa xmlns:ns2="http://collectionspace.org/services/media/local/bampfa" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <imageNumber>1</imageNumber>
+</ns2:media_bampfa>
 </document>
 """
 

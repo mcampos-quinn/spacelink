@@ -38,6 +38,7 @@ else:
 
 cs_requester = cs_utils.CSpaceRequest(cspace_instance=cspace_instance)
 rs_requester = rs_utils.RSpaceRequest()
+rs_requester.check_status()
 
 if not rs_requester.status:
 	current_link_log.logger.warning("The ResourceSpace API is broken or misconfigured.")
