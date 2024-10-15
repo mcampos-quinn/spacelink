@@ -136,27 +136,28 @@ def fetch_cs_metadata(rs_item,rs_requester,cs_object_id,cs_requester):
 def check_for_no_display(rs_item):
 	no_display = None
 	try:
-		no_display = re.match(r'.*_6\.jpg',rs_item.filename)
+		no_display = re.match(r'.*_6\.jp.*g',rs_item.filename)
 	except:
 		pass
 
-	if no_display:
-		media_payload = media_payload_no_display
-	
-	return media_payload
+	if no_display == None:
+		return_value = media_payload_no_display
+	else:
+		return_value = media_payload
+	return return_value
 
 
 def push_derivative(rs_item,cs_requester,rs_requester):
 	# rs_item should be a RSpaceObject instance
 	# check first if the filename indicates the item should be withheld
 	# from being pushed to a public site
-	media_payload = check_for_no_display(rs_item)
+	payload = check_for_no_display(rs_item)
 	return_value = False
 	response = cs_requester.run_query(
 		cspace_service='media',
 		parameters=f'?blobUri={rs_item.derivative_url}',
 		verb='post',
-		payload = media_payload
+		payload = payload
 	)
 	if response.ok:
 		media_uri = response.headers['Location']
@@ -216,6 +217,9 @@ media_payload = """<?xml version="1.0" encoding="UTF-8"?>
 <ns2:media_common xmlns:ns2="http://collectionspace.org/services/media" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 </ns2:media_common>
 <ns2:media_bampfa xmlns:ns2="http://collectionspace.org/services/media/local/bampfa" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <websiteDisplayLevel>Display thumbnail only</websiteDisplayLevel>
+</ns2:media_bampfa>
+<ns2:media_bampfa xmlns:ns2="http://collectionspace.org/services/media/local/bampfa" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <imageNumber>1</imageNumber>
 </ns2:media_bampfa>
 </document>
@@ -227,7 +231,7 @@ media_payload_no_display = """<?xml version="1.0" encoding="UTF-8"?>
 </ns2:media_common>
 <ns2:media_bampfa xmlns:ns2="http://collectionspace.org/services/media/local/bampfa" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <imageNumber>1</imageNumber>
-  <websiteDisplayLevel>No public display</websiteDisplayLevel>
+  <websitedisplaylevel>No public display</websitedisplaylevel>
 </ns2:media_bampfa>
 </document>
 """
