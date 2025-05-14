@@ -138,8 +138,7 @@ def check_for_no_display(rs_item):
 	print(rs_item.filename)
 	no_display = None
 	try:
-		no_display = re.match(r'.*_6\.jp.*g',rs_item.filename)
-	except:
+		no_display = re.match(r'.*_6\.(JPG|JPEG|jpg|jpeg)',rs_item.filename)
 		pass
 
 	if no_display != None:
